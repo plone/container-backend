@@ -1,11 +1,11 @@
 # syntax=docker/dockerfile:1
-ARG PYTHON_VERSION=3.13
+ARG PYTHON_VERSION=3.14
 FROM python:${PYTHON_VERSION}-slim-bookworm AS base
 FROM base AS builder
 
 ENV PIP_PARAMS=""
-ENV PIP_VERSION=24.3.1
-ENV EXTRA_PACKAGES="relstorage==4.1.1 psycopg2==2.9.10 python-ldap==3.4.4"
+ENV PIP_VERSION=26.1.2
+ENV EXTRA_PACKAGES="relstorage==4.3.0 psycopg2==2.9.12 python-ldap==3.4.7"
 
 RUN mkdir /wheelhouse
 
@@ -15,11 +15,11 @@ RUN <<EOT
     buildDeps="build-essential curl libbz2-dev libffi-dev libjpeg62-turbo-dev libsasl2-dev libldap2-dev libopenjp2-7-dev libpcre3-dev libpq-dev libssl-dev libtiff6 libtiff5-dev libxml2-dev libxslt1-dev wget unzip zlib1g-dev"
     apt-get install -y --no-install-recommends $buildDeps
     pip install -U "pip==${PIP_VERSION}"
-    pip install -U "zc.buildout==4.0" "wheel==0.45.1"
+    pip install -U "zc.buildout==5.2.0.0" "wheel==0.47.0" "setuptools==81.0.0"
     rm -rf /var/lib/apt/lists/* /usr/share/doc
-    curl -L -o workspace.zip https://github.com/plone/buildout.coredev/archive/refs/heads/6.1.zip
+    curl -L -o workspace.zip https://github.com/plone/buildout.coredev/archive/refs/heads/6.2.zip
     unzip workspace.zip
-    mv buildout.coredev-6.1 /workspace
+    mv buildout.coredev-6.2 /workspace
 EOT
 
 WORKDIR /workspace
@@ -36,11 +36,11 @@ EOT
 FROM base
 
 ENV PIP_PARAMS=""
-ENV PIP_VERSION=24.3.1
+ENV PIP_VERSION=26.1.2
 
 LABEL maintainer="Plone Community <dev@plone.org>" \
       org.label-schema.name="plone-backend" \
-      org.label-schema.description="Plone backend image using Python 3.10" \
+      org.label-schema.description="Plone 6.2 nightly backend image using Python 3.14" \
       org.label-schema.vendor="Plone Foundation"
 
 COPY --from=builder /wheelhouse /wheelhouse

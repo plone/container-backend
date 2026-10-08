@@ -1,3 +1,9 @@
+## 6.2.2 (2026-09-11)
+
+### Bugfix
+
+- Upgrade to Plone 6.2.2.  @mauritsvanrees 
+
 ## 6.2.1 (2026-06-27)
 
 ### Feature
