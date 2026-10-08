@@ -22,7 +22,7 @@ jobs:
       PUSH_BRANCH: ${{ steps.vars.outputs.PUSH_BRANCH }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set BASE_IMAGE_NAME, IS_LATEST, PLATFORMS, PYTHON_VERSIONS
         id: vars
