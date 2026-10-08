@@ -1,0 +1,1 @@
+Changed the UV image workflow to log in to the registries only when it pushes, so builds on pull requests, other branches and Dependabot updates no longer need registry credentials. @ericof
