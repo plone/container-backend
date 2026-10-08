@@ -1,0 +1,5 @@
+--- Case 1: Automatic fix ---
+Running chown to fix ownership of the data directory
+--- Case 2: Forced fix ---
+Running chown to fix ownership of the data directory
+--- Case 3: No fix ---
