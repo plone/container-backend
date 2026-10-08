@@ -24,3 +24,14 @@ updates:
       github-actions:
         patterns:
           - "*"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "uv"
+    schedule:
+      # Check for updates to GitHub Actions every week
+      interval: "weekly"
+    groups:
+      # Bump all actions in a single pull request
+      github-actions:
+        patterns:
+          - "*"
