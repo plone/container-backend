@@ -70,7 +70,7 @@ elif [[ -v ZODB_PGJSONB_DSN ]]; then
   # Check zodb-pgjsonb variables
   [ -z ${ZODB_PGJSONB_HISTORY_PRESERVING+x} ] && export ZODB_PGJSONB_HISTORY_PRESERVING=false
 
-  if [[ -v ZODB_PGJSONB_Z3BLOBS_ENABLED && $ZODB_PGJSONB_Z3BLOBS_ENABLED == "true" ]]; then
+  if [[ -v ZODB_PGJSONB_S3BLOBS_ENABLED && $ZODB_PGJSONB_S3BLOBS_ENABLED == "true" ]]; then
 
     if [[ -n "$ZODB_PGJSONB_S3BLOBS_ENDPOINT_URL" && \
           -n "$ZODB_PGJSONB_S3BLOBS_BUCKET_NAME" && \
@@ -80,20 +80,23 @@ elif [[ -v ZODB_PGJSONB_DSN ]]; then
       MSG="Using zodb-pgjsonb S3 blobs configuration"
       CONF=zodb-pgjsonb-s3blobs.conf
 
-      [ -z ${ZODB_PGJSONB_S3BLOBS_USE_SSL+x} ] && export ZODB_PGJSONB_S3BLOBS_USE_SSL=false
-      [ -z ${ZODB_PGJSONB_S3BLOBS_REGION+x} ] && export ZODB_PGJSONB_S3BLOBS_REGION=none
+      # An endpoint URL with an explicit scheme takes precedence over USE_SSL
+      [ -z ${ZODB_PGJSONB_S3BLOBS_USE_SSL+x} ] && export ZODB_PGJSONB_S3BLOBS_USE_SSL=true
+      # An empty region is not passed on, so boto3 picks its own default
+      [ -z ${ZODB_PGJSONB_S3BLOBS_REGION+x} ] && export ZODB_PGJSONB_S3BLOBS_REGION=
       [ -z ${ZODB_PGJSONB_S3BLOBS_PREFIX+x} ] && export ZODB_PGJSONB_S3BLOBS_PREFIX=
       [ -z ${ZODB_PGJSONB_S3BLOBS_THRESHOLD+x} ] && export ZODB_PGJSONB_S3BLOBS_THRESHOLD=100KB
-      [ -z ${ZODB_PGJSONB_S3BLOBS_CACHE_DIR+x} ] && export ZODB_PGJSONB_S3BLOBS_CACHE_DIR=auto
+      [ -z ${ZODB_PGJSONB_S3BLOBS_CACHE_DIR+x} ] && export ZODB_PGJSONB_S3BLOBS_CACHE_DIR=/data/blobcache
       [ -z ${ZODB_PGJSONB_S3BLOBS_CACHE_SIZE+x} ] && export ZODB_PGJSONB_S3BLOBS_CACHE_SIZE=1GB
 
     else
-      # If the required environment vars are missing, print an error message and exit
+      # If the required environment vars are missing, print an error message and exit.
+      # Credentials are reported as set or missing, never printed.
       echo "ERROR: You have enabled the usage of S3 blobs, but some required data is missing:"
       echo "- Endpoint URL: ${ZODB_PGJSONB_S3BLOBS_ENDPOINT_URL:-MISSING}"
       echo "- Bucket: ${ZODB_PGJSONB_S3BLOBS_BUCKET_NAME:-MISSING}"
-      echo "- Access Key: ${ZODB_PGJSONB_S3BLOBS_ACCESS_KEY:-MISSING}"
-      echo "- Secret Key: ${ZODB_PGJSONB_S3BLOBS_SECRET_KEY:-MISSING}"
+      echo "- Access Key: $([[ -n "$ZODB_PGJSONB_S3BLOBS_ACCESS_KEY" ]] && echo set || echo MISSING)"
+      echo "- Secret Key: $([[ -n "$ZODB_PGJSONB_S3BLOBS_SECRET_KEY" ]] && echo set || echo MISSING)"
       exit 1
     fi
   fi

@@ -4,7 +4,7 @@ FROM python:${PYTHON_VERSION}-slim-bookworm
 
 ARG PLONE_VERSION
 
-ENV EXTRA_PACKAGES="relstorage==4.1.1 psycopg2==2.9.10 python-ldap==3.4.4 zodb-pgjsonb[s3]==1.12.0 zodb-json-codec==1.6.1 ZEO"
+ENV EXTRA_PACKAGES="relstorage==4.1.1 psycopg2==2.9.10 python-ldap==3.4.4 zodb-pgjsonb[s3]==1.17.1 zodb-json-codec==1.7.0 ZEO"
 
 
 LABEL maintainer="Plone Community <dev@plone.org>" \

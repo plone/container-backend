@@ -13,7 +13,7 @@ zname="pgjsonb-container-$RANDOM-$RANDOM"
 zpull="$(docker pull postgres:17)"
 zid="$(docker run -d --name "$zname" -e POSTGRES_USER=plone -e POSTGRES_PASSWORD=plone -e POSTGRES_DB=plone postgres:17)"
 
-# Start Plone as RelStorage Client
+# Start Plone as zodb-pgjsonb client
 pname="plone-container-$RANDOM-$RANDOM"
 pid="$(docker run -d --name "$pname" --link=$zname:db -e ZODB_PGJSONB_DSN="dbname='plone' user='plone' host='db' password='plone'" "$image")"
 
@@ -32,3 +32,6 @@ get() {
 
 # Plone is up and running
 [[ "$(get 'http://plone:8080')" == *"Welcome to Plone!"* ]]
+
+# The zodb-pgjsonb configuration was used
+[[ "$(docker logs "$pid" 2>&1)" == *"Using zodb-pgjsonb configuration"* ]]
