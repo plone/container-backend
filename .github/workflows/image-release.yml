@@ -67,7 +67,10 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
+      # Log in only when pushing: builds that do not push (pull requests,
+      # other branches, Dependabot) may run without the registry secrets.
       - name: Login to GitHub Registry
+        if: ${{ inputs.push && github.event_name != 'pull_request' }}
         uses: docker/login-action@v4
         with:
           registry: ghcr.io
@@ -75,6 +78,7 @@ jobs:
           password: ${{ secrets.ghcr-registry-password }}
 
       - name: Login to Docker Hub Registry
+        if: ${{ inputs.push && github.event_name != 'pull_request' }}
         uses: docker/login-action@v4
         with:
           username: ${{ secrets.docker-registry-username }}
