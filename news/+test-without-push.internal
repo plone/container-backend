@@ -1,0 +1,1 @@
+Changed the image test workflow to build and test the images locally instead of pushing them to Docker Hub, so it no longer needs registry credentials and also runs on Dependabot and fork pull requests. @ericof
