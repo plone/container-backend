@@ -27,7 +27,6 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    environment: DOCKER_HUB
     needs:
       - meta
     steps:
@@ -62,14 +61,10 @@ jobs:
           tags: |
             type=sha
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to Docker Hub Container Registry
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      # No Buildx setup: the default builder uses the docker driver, so each
+      # image lands in the local image store and the main image can build
+      # FROM the other two without a registry. This keeps the job free of
+      # secrets, which pull requests from forks and Dependabot do not get.
 
       - name: Build builder image for testing
         uses: docker/build-push-action@v4
@@ -77,7 +72,6 @@ jobs:
           context: ./
           file: Dockerfile.builder
           tags: ${{ steps.meta-builder.outputs.tags }}
-          push: true
           build-args: |
             PLONE_VERSION=${{ needs.meta.outputs.PLONE_VERSION }}
 
@@ -87,7 +81,6 @@ jobs:
           context: ./
           file: Dockerfile.prod
           tags: ${{ steps.meta-prod-config.outputs.tags }}
-          push: true
 
       - name: Build main image for testing
         uses: docker/build-push-action@v4
@@ -95,11 +88,9 @@ jobs:
           context: ./
           file: Dockerfile
           tags: ${{ steps.meta-main.outputs.tags }}
-          push: true
           build-args: |
             PLONE_VERSION=${{ needs.meta.outputs.SHA }}
 
       - name: Test
         run: |
-          docker pull ${{ steps.meta-main.outputs.tags }}
           ./test/run.sh  ${{ steps.meta-main.outputs.tags }}
