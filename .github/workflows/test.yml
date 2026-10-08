@@ -17,7 +17,7 @@ jobs:
       PLONE_VERSION: ${{ steps.vars.outputs.PLONE_VERSION }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Compute SHA value to be used in building the main image
         id: vars
@@ -32,11 +32,11 @@ jobs:
     steps:
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Builder Image
         id: meta-builder
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: |
             plone/server-builder
@@ -45,7 +45,7 @@ jobs:
 
       - name: Prod Config Image
         id: meta-prod-config
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: |
             plone/server-prod-config
@@ -54,7 +54,7 @@ jobs:
 
       - name: Main Image
         id: meta-main
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: |
             plone/plone-backend
@@ -67,7 +67,7 @@ jobs:
       # secrets, which pull requests from forks and Dependabot do not get.
 
       - name: Build builder image for testing
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v7
         with:
           context: ./
           file: Dockerfile.builder
@@ -76,14 +76,14 @@ jobs:
             PLONE_VERSION=${{ needs.meta.outputs.PLONE_VERSION }}
 
       - name: Build prod-config image for testing
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v7
         with:
           context: ./
           file: Dockerfile.prod
           tags: ${{ steps.meta-prod-config.outputs.tags }}
 
       - name: Build main image for testing
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v7
         with:
           context: ./
           file: Dockerfile
