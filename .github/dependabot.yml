@@ -1,0 +1,26 @@
+version: 2
+updates:
+  # Dependabot only checks the default branch unless target-branch is set,
+  # so each maintained branch gets its own entry.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "6.2.x"
+    schedule:
+      # Check for updates to GitHub Actions every week
+      interval: "weekly"
+    groups:
+      # Bump all actions in a single pull request
+      github-actions:
+        patterns:
+          - "*"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "6.1.x"
+    schedule:
+      # Check for updates to GitHub Actions every week
+      interval: "weekly"
+    groups:
+      # Bump all actions in a single pull request
+      github-actions:
+        patterns:
+          - "*"
