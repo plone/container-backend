@@ -16,6 +16,8 @@ plone-listenport
 plone-zeoclient
 plone-relstorage
 plone-shared-blob-dir
+plone-pgjsonb
+plone-pgjsonb-s3blobs
 '
 
 imageTests+=(

@@ -1,0 +1,1 @@
+Added support for zodb-pgjsonb storage, configured with `ZODB_PGJSONB_DSN`, with optional blob storage in S3 enabled by `ZODB_PGJSONB_S3BLOBS_ENABLED`. Projects built on these images need to add `zodb-pgjsonb[s3]` to their dependencies, which requires Python 3.12 or later. @erral
