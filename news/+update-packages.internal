@@ -1,0 +1,1 @@
+Update to latest uv. Update to pip 26.2.2. Make sure OS-level packages get upgraded at build time. @davisagli
