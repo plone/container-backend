@@ -8,8 +8,6 @@ SHELL:=bash
 MAKEFLAGS+=--warn-undefined-variables
 MAKEFLAGS+=--no-builtin-rules
 
-NIGHTLY_IMAGE_TAG=nightly
-
 # We like colors
 # From: https://coderwall.com/p/izxssa/colored-makefile-for-golang-projects
 RED=`tput setaf 1`
@@ -22,12 +20,12 @@ MAIN_IMAGE_NAME=plone/plone-backend
 CLASSICUI_IMAGE_NAME=plone/plone-classicui
 BASE_IMAGE_NAME=plone/server
 PLONE_VERSION=$$(cat version.txt)
+PYTHON_VERSION=3.12
 IMAGE_TAG=${PLONE_VERSION}
-NIGHTLY_IMAGE_TAG=nightly
 
 # Code Quality
 CURRENT_FOLDER=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
-CODE_QUALITY_VERSION=2.1.0
+CODE_QUALITY_VERSION=2.1.1
 ifndef LOG_LEVEL
 	LOG_LEVEL=INFO
 endif
@@ -61,44 +59,38 @@ lint: ## check code style
 .PHONY: show-image
 show-image: ## Print Version
 	@echo "$(MAIN_IMAGE_NAME):$(IMAGE_TAG)"
-	@echo "$(MAIN_IMAGE_NAME):$(NIGHTLY_IMAGE_TAG)"
 	@echo "$(BASE_IMAGE_NAME)-(builder|dev|prod-config|acceptance):$(IMAGE_TAG)"
 	@echo "$(CLASSICUI_IMAGE_NAME):$(IMAGE_TAG)"
 
 .PHONY: image-builder
 image-builder:  ## Build Base Image
 	@echo "Building $(BASE_IMAGE_NAME)-builder:$(IMAGE_TAG)"
-	@docker buildx build . --build-arg PLONE_VERSION=${PLONE_VERSION} -t $(BASE_IMAGE_NAME)-builder:$(IMAGE_TAG) -f Dockerfile.builder --load
+	@docker buildx build . --no-cache --build-arg PLONE_VERSION=${PLONE_VERSION} --build-arg PYTHON_VERSION=${PYTHON_VERSION} -t $(BASE_IMAGE_NAME)-builder:$(IMAGE_TAG) -f Dockerfile.builder --load
 
 .PHONY: image-dev
 image-dev:  ## Build Dev Image
 	@echo "Building $(BASE_IMAGE_NAME)-dev:$(IMAGE_TAG)"
-	@docker buildx build . --build-arg PLONE_VERSION=${PLONE_VERSION} -t $(BASE_IMAGE_NAME)-dev:$(IMAGE_TAG) -f Dockerfile.dev --load
+	@docker buildx build . --no-cache --build-arg PLONE_VERSION=${PLONE_VERSION} --build-arg PYTHON_VERSION=${PYTHON_VERSION} -t $(BASE_IMAGE_NAME)-dev:$(IMAGE_TAG) -f Dockerfile.dev --load
 
 .PHONY: image-prod-config
 image-prod-config:  ## Build Prod Image
 	@echo "Building $(BASE_IMAGE_NAME)-prod-config:$(IMAGE_TAG)"
-	@docker buildx build . --build-arg PLONE_VERSION=${PLONE_VERSION} -t $(BASE_IMAGE_NAME)-prod-config:$(IMAGE_TAG) -f Dockerfile.prod --load
+	@docker buildx build . --no-cache --build-arg PLONE_VERSION=${PLONE_VERSION} --build-arg PYTHON_VERSION=${PYTHON_VERSION} -t $(BASE_IMAGE_NAME)-prod-config:$(IMAGE_TAG) -f Dockerfile.prod --load
 
 .PHONY: image-classicui
 image-classicui:  ## Build Classic UI
 	@echo "Building $(CLASSICUI_IMAGE_NAME):$(IMAGE_TAG)"
-	@docker buildx build . --build-arg PLONE_VERSION=${PLONE_VERSION} -t $(CLASSICUI_IMAGE_NAME):$(IMAGE_TAG) -f Dockerfile.classicui --load
+	@docker buildx build . --no-cache --build-arg PLONE_VERSION=${PLONE_VERSION} --build-arg PYTHON_VERSION=${PYTHON_VERSION} -t $(CLASSICUI_IMAGE_NAME):$(IMAGE_TAG) -f Dockerfile.classicui --load
 
 .PHONY: image-acceptance
 image-acceptance:  ## Build Acceptance Image
 	@echo "Building $(BASE_IMAGE_NAME)-acceptance:$(IMAGE_TAG)"
-	@docker buildx build . --build-arg PLONE_VERSION=${PLONE_VERSION} -t $(BASE_IMAGE_NAME)-acceptance:$(IMAGE_TAG) -f Dockerfile.acceptance --load
+	@docker buildx build . --no-cache --build-arg PLONE_VERSION=${PLONE_VERSION} --build-arg PYTHON_VERSION=${PYTHON_VERSION} -t $(BASE_IMAGE_NAME)-acceptance:$(IMAGE_TAG) -f Dockerfile.acceptance --load
 
 .PHONY: image-main
 image-main:  ## Build main image
 	@echo "Building $(MAIN_IMAGE_NAME):$(IMAGE_TAG)"
-	@docker buildx build . --build-arg PLONE_VERSION=${PLONE_VERSION} -t $(MAIN_IMAGE_NAME):$(IMAGE_TAG) -f Dockerfile --load
-
-.PHONY: image-nightly
-image-nightly:  ## Build Docker Image Nightly
-	@echo "Building $(MAIN_IMAGE_NAME):$(NIGHTLY_IMAGE_TAG)"
-	@docker build . -t $(MAIN_IMAGE_NAME):$(NIGHTLY_IMAGE_TAG) -f Dockerfile.nightly
+	@docker buildx build . --no-cache --build-arg PLONE_VERSION=${PLONE_VERSION} --build-arg PYTHON_VERSION=${PYTHON_VERSION} -t $(MAIN_IMAGE_NAME):$(IMAGE_TAG) -f Dockerfile --load
 
 .PHONY: build-images
 build-images:  ## Build Images
@@ -120,6 +112,12 @@ create-tag: # Create a new tag using git
 remove-tag: # Remove an existing tag locally and remote
 	@echo "Removing tag v$(IMAGE_TAG)"
 	if git show-ref --tags v$(IMAGE_TAG) --quiet; then git tag -d v$(IMAGE_TAG) && git push origin :v$(IMAGE_TAG) && echo "$(IMAGE_TAG) removed";else echo "$(IMAGE_TAG) does not exist";fi
+
+.PHONY: towncrier
+towncrier: # Put news snippets in the changelog for the new version
+	@echo "Gathering news snippets for $(PLONE_VERSION)"
+	towncrier build --version=$(PLONE_VERSION)
+	@echo "If this looks right, you can call 'make commit-and-release'"
 
 commit-and-release: # Commit new version change and create tag
 	@echo "Commiting changes"

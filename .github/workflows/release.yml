@@ -22,7 +22,7 @@ jobs:
       PLONE_VERSION: ${{ steps.vars.outputs.PLONE_VERSION }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set BASE_IMAGE_NAME, IS_LATEST, PLATFORMS, PLONE_VERSION
         id: vars
