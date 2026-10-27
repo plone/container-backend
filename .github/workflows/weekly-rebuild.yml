@@ -1,0 +1,27 @@
+name: Weekly scheduled rebuild
+
+on:
+  schedule:
+    # Weekly, Mondays at 05:00 UTC — keeps images aligned with
+    # upstream Debian, Python, UV and Plone dependency updates.
+    - cron: "0 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        branch: [6.1.x, 6.2.x, uv]
+    steps:
+      - name: Trigger release workflow on ${{ matrix.branch }} branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run ${{ matrix.branch == 'uv' && 'release-uv' || 'release' }}.yml \
+            --repo "${{ github.repository }}" \
+            --ref ${{ env.branch }}
