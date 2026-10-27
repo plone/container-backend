@@ -1,8 +1,10 @@
 # syntax=docker/dockerfile:1
-ARG PYTHON_VERSION=3.11
+ARG PYTHON_VERSION=3.12
 ARG PLONE_VERSION
 FROM plone/server-builder:${PLONE_VERSION}
 
+ARG PYTHON_VERSION
+ARG PLONE_VERSION
 
 LABEL maintainer="Plone Community <dev@plone.org>" \
       org.label-schema.name="server-dev" \
@@ -19,15 +21,15 @@ RUN <<EOT
 EOT
 
 # Turns off buffering
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONUNBUFFERED=1
 # Keeps Python from generating .pyc files
-ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONDONTWRITEBYTECODE=1
 # Enable Application server in debug mode
-ENV DEBUG_MODE on
+ENV DEBUG_MODE=on
 # Disable compilation of po files into mo files
 ENV zope_i18n_compile_mo_files=
 # Set chameleon cache directory
-ENV CHAMELEON_CACHE /app/var/cache
+ENV CHAMELEON_CACHE=/app/var/cache
 # Expose Zope Port
 EXPOSE 8080
 

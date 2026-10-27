@@ -1,6 +1,10 @@
 # syntax=docker/dockerfile:1
-ARG PYTHON_VERSION=3.11
-FROM python:${PYTHON_VERSION}-slim-bullseye
+ARG PYTHON_VERSION=3.12
+ARG PLONE_VERSION
+FROM python:${PYTHON_VERSION}-slim-bookworm
+
+ARG PYTHON_VERSION
+ARG PLONE_VERSION
 
 LABEL maintainer="Plone Community <dev@plone.org>" \
       org.label-schema.name="server-prod-conf" \
@@ -11,7 +15,7 @@ LABEL maintainer="Plone Community <dev@plone.org>" \
 RUN <<EOT
     set -e
     useradd --system -m -d /app -U -u 500 plone
-    runDeps="ca-certificates git libjpeg62 libopenjp2-7 libpq5 libtiff5 libxml2 libxslt1.1 lynx netcat poppler-utils rsync wv busybox gosu libmagic1 make"
+    runDeps="ca-certificates git libjpeg62 libopenjp2-7 libpq5 libtiff6 libxml2 libxslt1.1 lynx netcat-openbsd poppler-utils rsync wv busybox gosu libmagic1 make"
     apt-get update
     apt-get -y upgrade
     apt-get install -y --no-install-recommends $runDeps
@@ -23,9 +27,9 @@ RUN <<EOT
 EOT
 
 # Disable debug mode
-ENV DEBUG_MODE off
+ENV DEBUG_MODE=off
 # Set chameleon cache directory
-ENV CHAMELEON_CACHE /app/var/cache
+ENV CHAMELEON_CACHE=/app/var/cache
 # Disable compilation of po files into mo files (This should be done in the builder image)
 ENV zope_i18n_compile_mo_files=
 

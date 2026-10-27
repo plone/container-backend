@@ -1,0 +1,28 @@
+name: Schedule UV image rebuild
+
+on:
+  schedule:
+    # Weekly, Mondays at 05:00 UTC — keeps UV-based images aligned with
+    # upstream Debian, Python, UV and Plone dependency updates.
+    - cron: "0 5 * * 1"
+  workflow_dispatch:
+
+env:
+  branch: uv
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  dispatch:
+    name: Dispatch release-uv on the uv branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger release-uv workflow
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run release-uv.yml \
+            --repo "${{ github.repository }}" \
+            --ref ${{ env.branch }}
