@@ -24,4 +24,4 @@ jobs:
         run: |
           gh workflow run ${{ matrix.branch == 'uv' && 'release-uv' || 'release' }}.yml \
             --repo "${{ github.repository }}" \
-            --ref ${{ env.branch }}
+            --ref ${{ matrix.branch }}
