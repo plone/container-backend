@@ -17,7 +17,7 @@ jobs:
       PLONE_VERSION: ${{ steps.vars.outputs.PLONE_VERSION }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Compute SHA value to be used in building the main image
         id: vars
@@ -27,17 +27,16 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    environment: DOCKER_HUB
     needs:
       - meta
     steps:
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Builder Image
         id: meta-builder
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: |
             plone/server-builder
@@ -46,7 +45,7 @@ jobs:
 
       - name: Prod Config Image
         id: meta-prod-config
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: |
             plone/server-prod-config
@@ -55,51 +54,43 @@ jobs:
 
       - name: Main Image
         id: meta-main
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: |
             plone/plone-backend
           tags: |
             type=sha
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to Docker Hub Container Registry
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      # No Buildx setup: the default builder uses the docker driver, so each
+      # image lands in the local image store and the main image can build
+      # FROM the other two without a registry. This keeps the job free of
+      # secrets, which pull requests from forks and Dependabot do not get.
 
       - name: Build builder image for testing
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v7
         with:
           context: ./
           file: Dockerfile.builder
           tags: ${{ steps.meta-builder.outputs.tags }}
-          push: true
           build-args: |
             PLONE_VERSION=${{ needs.meta.outputs.PLONE_VERSION }}
 
       - name: Build prod-config image for testing
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v7
         with:
           context: ./
           file: Dockerfile.prod
           tags: ${{ steps.meta-prod-config.outputs.tags }}
-          push: true
 
       - name: Build main image for testing
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v7
         with:
           context: ./
           file: Dockerfile
           tags: ${{ steps.meta-main.outputs.tags }}
-          push: true
           build-args: |
             PLONE_VERSION=${{ needs.meta.outputs.SHA }}
 
       - name: Test
         run: |
-          docker pull ${{ steps.meta-main.outputs.tags }}
           ./test/run.sh  ${{ steps.meta-main.outputs.tags }}

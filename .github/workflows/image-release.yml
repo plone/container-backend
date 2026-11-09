@@ -40,15 +40,16 @@ on:
 jobs:
 
   release:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, ARM64, stable]
+
     environment: DOCKER_HUB
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Docker meta
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: |
             ${{ inputs.image-name }}
@@ -57,34 +58,35 @@ jobs:
           tags: |
             type=ref,event=branch
             type=ref,event=pr
-            type=pep440,pattern={{version}}
-            type=pep440,pattern={{major}}.{{minor}}.{{patch}}
-            type=pep440,pattern={{major}}.{{minor}}
-            type=pep440,pattern={{major}}
+            type=pep440,pattern={{version}}, value=${{ inputs.plone-version }}
+            type=pep440,pattern={{major}}.{{minor}}.{{patch}}, value=${{ inputs.plone-version }}
+            type=pep440,pattern={{major}}.{{minor}}, value=${{ inputs.plone-version }}
+            type=pep440,pattern={{major}}, value=${{ inputs.plone-version }}
             type=sha
             type=raw,value=latest,enable=${{ inputs.is-latest }}
+            type=raw,value=${{ inputs.plone-version }}
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Login to GitHub Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ secrets.ghcr-registry-username }}
           password: ${{ secrets.ghcr-registry-password }}
 
       - name: Login to Docker Hub Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: ${{ secrets.docker-registry-username }}
           password: ${{ secrets.docker-registry-password }}
 
       - name: Build and push
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v7
         with:
           platforms: ${{ inputs.platforms }}
           context: .

@@ -50,14 +50,19 @@ def compile_po_file(po_file: Path) -> Path | None:
 
 
 def main():
-    lib_path: Path = Path(f"{APP_FOLDER}/lib").resolve()
-    po_files: Generator= lib_path.glob("**/*.po")
     mo_files: list = []
-    logger.info("Starting compilation of po files")
-    for po_file in po_files:
-        mo_file = compile_po_file(po_file)
-        if mo_file:
-            mo_files.append(mo_file)
+    lib_paths: list = []
+    lib_paths = [
+        Path(f"{APP_FOLDER}/lib").resolve(),
+        Path(f"{APP_FOLDER}/src/sources").resolve(),
+    ]
+    for lib_path in lib_paths:
+        po_files: Generator = lib_path.glob("**/*.po")
+        logger.info("Starting compilation of po files")
+        for po_file in po_files:
+            mo_file = compile_po_file(po_file)
+            if mo_file:
+                mo_files.append(mo_file)
     logger.info(f"Compiled {len(mo_files)} files")
 
 

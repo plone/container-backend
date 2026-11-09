@@ -1,12 +1,18 @@
 # syntax=docker/dockerfile:1
-ARG PYTHON_VERSION=3.11
+ARG PYTHON_VERSION=3.12
 ARG PLONE_VERSION
-FROM plone/server-builder:${PLONE_VERSION} as builder
+FROM plone/server-builder:${PLONE_VERSION} AS builder
+
+ARG PLONE_VERSION
+
 FROM plone/server-prod-config:${PLONE_VERSION}
+
+ARG PYTHON_VERSION
+ARG PLONE_VERSION
 
 LABEL maintainer="Plone Community <dev@plone.org>" \
       org.label-schema.name="plone-backend" \
-      org.label-schema.description="Plone backend image using Python $PYTHON_VERSION" \
+      org.label-schema.description="Plone $PLONE_VERSION backend image using Python $PYTHON_VERSION" \
       org.label-schema.vendor="Plone Foundation"
 
 # Use /app as the workdir

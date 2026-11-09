@@ -1,15 +1,17 @@
 # syntax=docker/dockerfile:1
-ARG PYTHON_VERSION=3.11
+ARG PYTHON_VERSION=3.12
 ARG PLONE_VERSION
-FROM plone/server-builder:${PLONE_VERSION} as builder
+FROM plone/server-builder:${PLONE_VERSION} AS builder
 
-# https://github.com/pypa/pip/issues/12079
-ENV _PIP_USE_IMPORTLIB_METADATA=0
+ARG PLONE_VERSION
 
 # Install robotframework support
 RUN /app/bin/pip install plone.app.robotframework>=2.0.0
 
 FROM plone/server-prod-config:${PLONE_VERSION}
+
+ARG PYTHON_VERSION
+ARG PLONE_VERSION
 
 LABEL maintainer="Plone Community <dev@plone.org>" \
       org.label-schema.name="server-acceptance" \
@@ -21,7 +23,7 @@ LABEL maintainer="Plone Community <dev@plone.org>" \
 COPY --from=builder --chown=500:500 /app /app
 
 # Set chameleon cache directory
-ENV CHAMELEON_CACHE /app/var/cache
+ENV CHAMELEON_CACHE=/app/var/cache
 # Zope listens to all ip addresses
 ENV ZSERVER_HOST=0.0.0.0
 # Zope port to be 55001
