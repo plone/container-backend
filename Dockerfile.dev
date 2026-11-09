@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-ARG PYTHON_VERSION=3.12
+ARG PYTHON_VERSION=3.11
 ARG PLONE_VERSION
 FROM plone/server-builder:${PLONE_VERSION}
 
