@@ -20,7 +20,7 @@ MAIN_IMAGE_NAME=plone/plone-backend
 CLASSICUI_IMAGE_NAME=plone/plone-classicui
 BASE_IMAGE_NAME=plone/server
 PLONE_VERSION=$$(cat version.txt)
-PYTHON_VERSION=3.12
+PYTHON_VERSION=3.11
 IMAGE_TAG=${PLONE_VERSION}
 
 # Code Quality
