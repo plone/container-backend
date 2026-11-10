@@ -13,6 +13,7 @@ plone-addons
 plone-cors
 plone-arbitrary-user
 plone-listenport
+plone-dualstack
 plone-zeoclient
 plone-relstorage
 plone-shared-blob-dir
